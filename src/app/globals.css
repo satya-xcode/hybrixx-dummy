@@ -1,0 +1,217 @@
+/* ==========================================================================
+   HYBRIXX-DUMMY — D2C DESIGN SYSTEM (single source of truth)
+   All colors, type, spacing, motion live here. Components never hardcode
+   raw hex/px values — they reference these tokens via Tailwind utilities
+   or var(--token) so the whole brand can be re-skinned from this one file.
+   ========================================================================== */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* --------------------------------------------------------------------------
+   TAILWIND V4 THEME MAPPING — exposes tokens as bg-*, text-*, rounded-* etc.
+-------------------------------------------------------------------------- */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --font-size-hero: var(--text-hero);
+  --font-size-h1: var(--text-h1);
+  --font-size-h2: var(--text-h2);
+  --font-size-h3: var(--text-h3);
+  --font-size-lead: var(--text-lead);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+
+  /* Spacing scale wired into Tailwind's numeric spacing utilities */
+  --spacing-1: var(--space-xs);
+  --spacing-2: var(--space-sm);
+  --spacing-4: var(--space-md);
+  --spacing-6: var(--space-lg);
+  --spacing-10: var(--space-xl);
+  --spacing-16: var(--space-2xl);
+  --spacing-24: var(--space-3xl);
+
+  --animate-fade-up: fade-up 0.6s var(--ease-liquid) both;
+  --animate-marquee: marquee 30s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   DESIGN TOKENS — LIGHT (default)
+-------------------------------------------------------------------------- */
+:root {
+  /* ── D2C Palette ───────────────────────────────────────────────────
+     Warm off-white base (softer than pure white, feels premium/organic)
+     + warm near-black ink (easier on the eyes than pure black)
+     + one confident coral accent for CTAs (appetite/energy, converts
+       well for lifestyle/apparel/gadget D2C without feeling alarmist
+       like pure red) + a forest-green trust color for stock/success
+       states + muted gold for ratings.
+     Swap ONLY these hex values to re-skin the entire product. ────── */
+  --background: #FAF8F5;
+  --foreground: #16130F;
+  --surface: #FFFFFF;
+  --surface-foreground: #16130F;
+
+  --muted: #F0EBE3;
+  --muted-foreground: #82786A;
+  --border: #E7E0D5;
+  --ring: #FF5A3C;
+
+  --primary: #FF5A3C;          /* coral — primary CTA */
+  --primary-hover: #E8492D;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #16130F;        /* ink — secondary buttons, nav */
+  --secondary-foreground: #FAF8F5;
+
+  --accent: #1F7A5C;           /* forest green — trust/success accents */
+  --accent-foreground: #FFFFFF;
+
+  --success: #1F7A5C;
+  --warning: #D4A017;          /* muted gold — ratings, badges */
+  --destructive: #C4362C;
+  --destructive-foreground: #FFFFFF;
+
+  --radius: 0.75rem;
+
+  /* ── Fluid Typography Scale (clamp = responsive without breakpoints) ── */
+  --text-hero: clamp(2.5rem, 5vw + 1rem, 5rem);
+  --text-h1: clamp(2rem, 3.2vw + 1rem, 3.25rem);
+  --text-h2: clamp(1.5rem, 2vw + 1rem, 2.25rem);
+  --text-h3: clamp(1.125rem, 1vw + 1rem, 1.5rem);
+  --text-lead: clamp(1.0625rem, 0.5vw + 1rem, 1.25rem);
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-xs: 0.75rem;
+
+  /* ── Spacing (8px base rhythm) ─────────────────────────────────────── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  /* ── Motion ───────────────────────────────────────────────────────── */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-liquid: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-normal: 300ms;
+  --dur-slow: 500ms;
+}
+
+/* --------------------------------------------------------------------------
+   DESIGN TOKENS — DARK
+-------------------------------------------------------------------------- */
+.dark {
+  --background: #100E0B;
+  --foreground: #F7F3EC;
+  --surface: #1A1712;
+  --surface-foreground: #F7F3EC;
+
+  --muted: #221E17;
+  --muted-foreground: #A69C8B;
+  --border: #2C271E;
+  --ring: #FF6E52;
+
+  --primary: #FF6E52;
+  --primary-hover: #FF836A;
+  --primary-foreground: #100E0B;
+
+  --secondary: #F7F3EC;
+  --secondary-foreground: #100E0B;
+
+  --accent: #37A57C;
+  --accent-foreground: #0A1712;
+
+  --success: #37A57C;
+  --warning: #E0B33B;
+  --destructive: #E5665A;
+  --destructive-foreground: #100E0B;
+}
+
+/* --------------------------------------------------------------------------
+   BASE LAYER
+-------------------------------------------------------------------------- */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans scroll-smooth;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+@layer utilities {
+  .text-hero { font-size: var(--text-hero); line-height: 1.05; letter-spacing: -0.02em; }
+  .text-h1 { font-size: var(--text-h1); line-height: 1.1; letter-spacing: -0.02em; }
+  .text-h2 { font-size: var(--text-h2); line-height: 1.15; letter-spacing: -0.01em; }
+  .text-h3 { font-size: var(--text-h3); line-height: 1.2; }
+  .text-lead { font-size: var(--text-lead); line-height: 1.5; }
+
+  .container-main {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
