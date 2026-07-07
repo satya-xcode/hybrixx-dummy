@@ -3,14 +3,17 @@ import { Container, Section, Grid } from "@/components/layout/primitives";
 import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 import { PageHeader } from "@/components/sections/page-header";
 import { ProductCard } from "@/components/sections/product-card";
-import { products, siteConfig } from "@/config/site";
+import { getProducts } from "@/lib/data/products";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
   title: `Shop — ${siteConfig.name}`,
   description: "Every product Nomad makes, on one page.",
 };
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const products = await getProducts();
+
   return (
     <>
       <PageHeader

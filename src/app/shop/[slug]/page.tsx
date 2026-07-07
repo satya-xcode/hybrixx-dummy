@@ -9,10 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 import { ProductCard, formatINR } from "@/components/sections/product-card";
-import { products, siteConfig } from "@/config/site";
+import { AddToCartButton } from "@/components/sections/add-to-cart-button";
+import { getProductBySlug, getProducts, getProductSlugs } from "@/lib/data/products";
+import { siteConfig } from "@/config/site";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+export async function generateStaticParams() {
+  const slugs = await getProductSlugs();
+  return slugs;
 }
 
 export async function generateMetadata({
@@ -21,11 +24,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = await getProductBySlug(slug);
   if (!product) return {};
   return {
     title: `${product.name} — ${siteConfig.name}`,
     description: product.blurb,
+    alternates: { canonical: `/shop/${slug}` },
+    openGraph: {
+      title: `${product.name} — ${siteConfig.name}`,
+      description: product.blurb,
+      type: "website",
+      url: `${siteConfig.url}/shop/${slug}`,
+    },
   };
 }
 
@@ -35,13 +45,42 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = products.filter((p) => p.slug !== product.slug).slice(0, 3);
+  const allProducts = await getProducts();
+  const related = allProducts.filter((p) => p.slug !== product.slug).slice(0, 3);
+
+  // JSON-LD Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${siteConfig.url}/shop/${product.slug}`,
+    name: product.name,
+    description: product.blurb,
+    brand: { "@type": "Brand", name: siteConfig.name },
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
+      url: `${siteConfig.url}/shop/${product.slug}`,
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: product.rating,
+      reviewCount: product.reviewCount,
+    },
+  };
 
   return (
     <>
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Section spacing="sm" className="border-b border-border">
         <Container size="lg">
           <Flex gap="xs" className="text-sm text-muted-foreground">
@@ -110,7 +149,7 @@ export default async function ProductPage({
                 </Stack>
 
                 <Flex gap="sm" wrap className="mt-2">
-                  <Button size="lg">Add to cart</Button>
+                  <AddToCartButton productId={product.id} size="lg" />
                   <Button size="lg" variant="outline" asChild>
                     <Link href="/shop">Continue shopping</Link>
                   </Button>

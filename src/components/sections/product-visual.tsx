@@ -1,5 +1,5 @@
 import { Zap, Cable, BatteryCharging, Package } from "lucide-react";
-import type { ProductCategory } from "@/config/site";
+import type { ProductCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const categoryConfig: Record<

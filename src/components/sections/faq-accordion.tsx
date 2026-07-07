@@ -6,12 +6,12 @@ import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-import type { FAQ } from "@/config/site";
+import type { FAQ } from "@/lib/types";
 
 const easeLiquid = [0.16, 1, 0.3, 1] as const;
 
 export function FaqAccordion({ items }: { items: FAQ[] }) {
-  const [openId, setOpenId] = React.useState<string | null>(
+  const [openId, setOpenId] = React.useState<number | null>(
     items[0]?.id ?? null
   );
 

@@ -2,10 +2,10 @@ import { Container, Section, Stack, Grid } from "@/components/layout/primitives"
 import { Heading, Text } from "@/components/ui/typography";
 import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 import { Card, CardContent } from "@/components/ui/card";
-import { testimonials } from "@/config/site";
 import { Star } from "lucide-react";
+import type { Testimonial } from "@/lib/types";
 
-export function Testimonials() {
+export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
   return (
     <Section id="reviews">
       <Container size="lg">

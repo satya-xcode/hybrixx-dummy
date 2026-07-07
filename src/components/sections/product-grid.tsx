@@ -4,10 +4,10 @@ import { Heading, Text } from "@/components/ui/typography";
 import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/sections/product-card";
-import { products } from "@/config/site";
 import { ArrowRight } from "lucide-react";
+import type { Product } from "@/lib/types";
 
-export function ProductGrid() {
+export function ProductGrid({ products }: { products: Product[] }) {
   return (
     <Section id="products">
       <Container size="lg">

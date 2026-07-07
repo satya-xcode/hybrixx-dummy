@@ -6,21 +6,31 @@ import { Card } from "@/components/ui/card";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { PageHeader } from "@/components/sections/page-header";
 import { ContactForm } from "@/components/sections/contact-form";
-import { contactInfo, siteConfig } from "@/config/site";
+import { getContactInfo } from "@/lib/data/site-settings";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
   title: `Contact — ${siteConfig.name}`,
   description: "Get in touch with the Nomad team.",
 };
 
-const infoRows = [
-  { icon: Mail, label: "Email", value: contactInfo.email },
-  { icon: Phone, label: "Phone", value: contactInfo.phone },
-  { icon: MapPin, label: "Address", value: contactInfo.address },
-  { icon: Clock, label: "Hours", value: contactInfo.hours },
-];
+const iconMap = {
+  Email: Mail,
+  Phone: Phone,
+  Address: MapPin,
+  Hours: Clock,
+} as const;
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contactInfo = await getContactInfo();
+
+  const infoRows = [
+    { icon: iconMap.Email, label: "Email", value: contactInfo.email },
+    { icon: iconMap.Phone, label: "Phone", value: contactInfo.phone },
+    { icon: iconMap.Address, label: "Address", value: contactInfo.address },
+    { icon: iconMap.Hours, label: "Hours", value: contactInfo.hours },
+  ];
+
   return (
     <>
       <PageHeader

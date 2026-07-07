@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/typography";
 import { Star } from "lucide-react";
-import type { Product } from "@/config/site";
+import type { Product } from "@/lib/types";
 import { ProductVisual } from "./product-visual";
+import { AddToCartButton } from "./add-to-cart-button";
 
 export function formatINR(paise: number) {
   return `₹${paise.toLocaleString("en-IN")}`;
@@ -54,7 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
             </Text>
           )}
         </div>
-        <Button size="sm">Add</Button>
+        <AddToCartButton productId={product.id} />
       </CardFooter>
     </Card>
   );

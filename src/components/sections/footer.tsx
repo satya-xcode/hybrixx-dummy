@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Container, Section, Stack, Flex } from "@/components/layout/primitives";
 import { Heading, Text } from "@/components/ui/typography";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
-import { Button } from "@/components/ui/button";
-import { siteConfig, contactInfo } from "@/config/site";
+import { siteConfig } from "@/config/site";
+import { NewsletterForm } from "@/components/sections/newsletter-form";
 
 export function NewsletterCTA() {
   return (
@@ -16,14 +16,7 @@ export function NewsletterCTA() {
               <Text muted className="max-w-md opacity-80">
                 Product drops and restock alerts. No spam, unsubscribe anytime.
               </Text>
-              <Flex gap="sm" className="mt-4 w-full max-w-sm" wrap>
-                <input
-                  type="email"
-                  placeholder="you@email.com"
-                  className="h-11 flex-1 rounded-xl border border-secondary-foreground/20 bg-secondary-foreground/10 px-4 text-sm text-secondary-foreground outline-none placeholder:text-secondary-foreground/50 focus-visible:ring-2 focus-visible:ring-primary"
-                />
-                <Button>Subscribe</Button>
-              </Flex>
+              <NewsletterForm />
             </Stack>
           </div>
         </ScrollReveal>
@@ -39,10 +32,10 @@ export function Footer() {
         <Flex justify="between" wrap gap="md">
           <Stack gap="xs">
             <Text variant="small" muted>
-              © {new Date().getFullYear()} {siteConfig.name}. Demo storefront — not a real product.
+              © 2026 {siteConfig.name}. Demo storefront — not a real product.
             </Text>
             <Text variant="xs" muted>
-              {contactInfo.email}
+              hello@nomad-gear.example
             </Text>
           </Stack>
           <Flex gap="md">

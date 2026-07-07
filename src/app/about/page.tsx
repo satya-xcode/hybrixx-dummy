@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 import { PageHeader } from "@/components/sections/page-header";
 import { WhySection } from "@/components/sections/why-section";
-import { aboutStats, siteConfig } from "@/config/site";
+import { getAboutStats } from "@/lib/data/site-settings";
+import { siteConfig } from "@/config/site";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export const metadata: Metadata = {
   description: "Why Nomad exists, and what we're building toward.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const aboutStats = await getAboutStats();
+
   return (
     <>
       <PageHeader
