@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/typography";
 import { Star } from "lucide-react";
 import type { Product } from "@/config/site";
+import { ProductVisual } from "./product-visual";
 
 export function formatINR(paise: number) {
   return `₹${paise.toLocaleString("en-IN")}`;
@@ -20,8 +21,13 @@ export function ProductCard({ product }: { product: Product }) {
           {product.badge && (
             <Badge className="absolute right-6 top-6">{product.badge}</Badge>
           )}
-          {/* Placeholder product "image" — swap for next/image in a real build */}
-          <div className="aspect-square w-full rounded-xl bg-muted transition-transform duration-300 group-hover:scale-[1.02]" />
+          {/* Placeholder art — swap for next/image when real product
+              photography exists; ProductVisual keeps the aspect-square
+              slot so layout won't shift when you do. */}
+          <ProductVisual
+            category={product.category}
+            className="transition-transform duration-300 group-hover:scale-[1.02]"
+          />
         </CardHeader>
 
         <CardContent className="flex-1 px-6">

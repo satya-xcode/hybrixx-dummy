@@ -3,6 +3,23 @@ export const siteConfig = {
   tagline: "Gear that keeps up with you",
   description:
     "A dummy D2C storefront demo — GaN chargers, cables & everyday carry, built to show off a reusable, animated component system.",
+  /**
+   * Placeholder domain — this is a demo project (see README). Replace with
+   * the real production domain before going live; every metadataBase,
+   * canonical URL, sitemap entry, and JSON-LD @id in this project reads
+   * from this single value.
+   */
+  url: "https://nomad-gear.example",
+  keywords: [
+    "GaN charger",
+    "USB-C fast charger",
+    "braided USB-C cable",
+    "portable power bank",
+    "D2C electronics India",
+    "travel charging kit",
+  ],
+  ogImageAlt: "Nomad — Gear that keeps up with you",
+  twitterHandle: "@nomad_gear",
   nav: [
     { label: "Shop", href: "/shop" },
     { label: "About", href: "/about" },
@@ -18,9 +35,12 @@ export const contactInfo = {
   hours: "Mon–Sat, 10am–6pm IST",
 };
 
+export type ProductCategory = "charger" | "cable" | "power-bank" | "kit";
+
 export type Product = {
   id: string;
   slug: string;
+  category: ProductCategory;
   name: string;
   price: number;
   compareAtPrice?: number;
@@ -36,6 +56,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: "p1",
+    category: "charger",
     slug: "65w-gan-charger",
     name: "65W GaN Charger",
     price: 2499,
@@ -61,6 +82,7 @@ export const products: Product[] = [
   },
   {
     id: "p2",
+    category: "cable",
     slug: "braided-usb-c-cable",
     name: "Braided USB-C Cable",
     price: 799,
@@ -84,6 +106,7 @@ export const products: Product[] = [
   },
   {
     id: "p3",
+    category: "power-bank",
     slug: "10k-power-bank",
     name: "10K Power Bank",
     price: 1999,
@@ -109,6 +132,7 @@ export const products: Product[] = [
   },
   {
     id: "p4",
+    category: "kit",
     slug: "4-in-1-travel-kit",
     name: "4-in-1 Travel Kit",
     price: 3299,
