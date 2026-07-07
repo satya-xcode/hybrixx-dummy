@@ -8,10 +8,20 @@ import { PageHeader } from "@/components/sections/page-header";
 import { ContactForm } from "@/components/sections/contact-form";
 import { getContactInfo } from "@/lib/data/site-settings";
 import { siteConfig } from "@/config/site";
+import { getLocalBusinessSchema } from "@/lib/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: `Contact — ${siteConfig.name}`,
-  description: "Get in touch with the Nomad team.",
+  title: "Contact Us",
+  description:
+    "Get in touch with the Nomad team — order issues, warranty claims, or general questions. Email, phone, and address in Noida, India. We reply within 1 business day.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: `Contact — ${siteConfig.name}`,
+    description:
+      "Order issue, warranty claim, or just a question — reach the actual Nomad team.",
+    url: `${siteConfig.url}/contact`,
+    type: "website",
+  },
 };
 
 const iconMap = {
@@ -24,6 +34,9 @@ const iconMap = {
 export default async function ContactPage() {
   const contactInfo = await getContactInfo();
 
+  // LocalBusiness JSON-LD — Google Knowledge Panel & Maps
+  const businessSchema = getLocalBusinessSchema(contactInfo);
+
   const infoRows = [
     { icon: iconMap.Email, label: "Email", value: contactInfo.email },
     { icon: iconMap.Phone, label: "Phone", value: contactInfo.phone },
@@ -33,6 +46,11 @@ export default async function ContactPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+      />
+
       <PageHeader
         eyebrow="Contact"
         title="Get in touch"

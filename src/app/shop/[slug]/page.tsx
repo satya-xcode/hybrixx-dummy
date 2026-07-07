@@ -12,6 +12,7 @@ import { ProductCard, formatINR } from "@/components/sections/product-card";
 import { AddToCartButton } from "@/components/sections/add-to-cart-button";
 import { getProductBySlug, getProducts, getProductSlugs } from "@/lib/data/products";
 import { siteConfig } from "@/config/site";
+import { getProductSchema, getBreadcrumbSchema } from "@/lib/seo/json-ld";
 
 export async function generateStaticParams() {
   const slugs = await getProductSlugs();
@@ -26,15 +27,24 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
+
+  const title = `${product.name} — Buy Online`;
+  const description = `${product.blurb} ₹${product.price.toLocaleString("en-IN")} with free shipping over ₹1,999. ${product.rating}★ rating from ${product.reviewCount} reviews. 1-year replacement warranty.`;
+
   return {
-    title: `${product.name} — ${siteConfig.name}`,
-    description: product.blurb,
+    title,
+    description,
     alternates: { canonical: `/shop/${slug}` },
     openGraph: {
       title: `${product.name} — ${siteConfig.name}`,
       description: product.blurb,
       type: "website",
       url: `${siteConfig.url}/shop/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} — ${siteConfig.name}`,
+      description: product.blurb,
     },
   };
 }
@@ -51,47 +61,44 @@ export default async function ProductPage({
   const allProducts = await getProducts();
   const related = allProducts.filter((p) => p.slug !== product.slug).slice(0, 3);
 
-  // JSON-LD Structured Data
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": `${siteConfig.url}/shop/${product.slug}`,
-    name: product.name,
-    description: product.blurb,
-    brand: { "@type": "Brand", name: siteConfig.name },
-    offers: {
-      "@type": "Offer",
-      price: product.price,
-      priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
-      url: `${siteConfig.url}/shop/${product.slug}`,
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount,
-    },
-  };
+  // JSON-LD: Product schema (with shipping, returns, ratings)
+  const productSchema = getProductSchema(product);
+
+  // JSON-LD: BreadcrumbList (Google displays breadcrumbs in SERPs)
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Shop", url: `${siteConfig.url}/shop` },
+    { name: product.name, url: `${siteConfig.url}/shop/${product.slug}` },
+  ]);
 
   return (
     <>
-      {/* JSON-LD */}
+      {/* JSON-LD: Product + BreadcrumbList */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([productSchema, breadcrumbSchema]),
+        }}
       />
 
       <Section spacing="sm" className="border-b border-border">
         <Container size="lg">
-          <Flex gap="xs" className="text-sm text-muted-foreground">
-            <Link href="/shop" className="hover:text-foreground">
-              Shop
-            </Link>
-            <ChevronRight className="size-3.5" />
-            <Text variant="small" className="text-foreground">
-              {product.name}
-            </Text>
-          </Flex>
+          {/* Visible breadcrumb navigation (semantic <nav>) */}
+          <nav aria-label="Breadcrumb">
+            <Flex gap="xs" className="text-sm text-muted-foreground">
+              <Link href="/" className="hover:text-foreground">
+                Home
+              </Link>
+              <ChevronRight className="size-3.5" />
+              <Link href="/shop" className="hover:text-foreground">
+                Shop
+              </Link>
+              <ChevronRight className="size-3.5" />
+              <Text variant="small" className="text-foreground" aria-current="page">
+                {product.name}
+              </Text>
+            </Flex>
+          </nav>
         </Container>
       </Section>
 

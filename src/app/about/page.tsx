@@ -12,8 +12,17 @@ import { siteConfig } from "@/config/site";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: `About — ${siteConfig.name}`,
-  description: "Why Nomad exists, and what we're building toward.",
+  title: "About Us — Our Story",
+  description:
+    "Nomad builds premium D2C electronics in India — GaN chargers, braided cables, and power banks designed to be the last you buy. Small catalog, on purpose. 1-year replacement warranty on everything.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: `About — ${siteConfig.name}`,
+    description:
+      "Why Nomad exists, and what we're building toward. Premium electronics, small catalog, no compromises.",
+    url: `${siteConfig.url}/about`,
+    type: "website",
+  },
 };
 
 export default async function AboutPage() {
