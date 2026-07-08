@@ -60,7 +60,7 @@ export async function getAboutStats(): Promise<AboutStat[]> {
   const stats = await getSiteSetting<AboutStat[]>("aboutStats");
   return (
     stats ?? [
-      { label: "Orders shipped", value: "500+" },
+      { label: "Orders shipped", value: "5008+" },
       { label: "Average rating", value: "4.8★" },
       { label: "Warranty", value: "1 year" },
       { label: "Dispatch time", value: "2 days" },
