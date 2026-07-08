@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { addToCart } from "@/app/actions/cart";
 import { useCartUI } from "@/lib/stores/cart-store";
@@ -10,10 +11,13 @@ export function AddToCartButton({ productId, size = "sm" }: { productId: number;
   const [isPending, startTransition] = React.useTransition();
   const [added, setAdded] = React.useState(false);
   const openCart = useCartUI((s) => s.openCart);
+  const router = useRouter();
 
   function handleClick() {
     startTransition(async () => {
       await addToCart(productId);
+      // Refetch the server component tree so CartBadge picks up the new count
+      router.refresh();
       setAdded(true);
       openCart();
       setTimeout(() => setAdded(false), 2000);
@@ -40,3 +44,4 @@ export function AddToCartButton({ productId, size = "sm" }: { productId: number;
     </Button>
   );
 }
+
