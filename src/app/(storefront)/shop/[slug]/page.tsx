@@ -26,19 +26,34 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, categories] = await Promise.all([
+    getProductBySlug(slug),
+    getActiveCategories(),
+  ]);
   if (!product) return {};
 
-  const title = `${product.name} — Buy Online`;
+  // Resolve category name from DB
+  const catObj = categories.find((c) => c.slug === product.category);
+  const catName = catObj?.name ?? product.category;
+
+  const title = `${product.name} — Buy ${catName} Online`;
   const description = `${product.blurb} ₹${product.price.toLocaleString("en-IN")} with free shipping over ₹1,999. ${product.rating}★ rating from ${product.reviewCount} reviews. 1-year replacement warranty.`;
 
   return {
     title,
     description,
-    alternates: { canonical: `/shop/${slug}` },
+    keywords: [
+      product.name,
+      catName,
+      `buy ${catName.toLowerCase()} online`,
+      `${siteConfig.name} ${catName.toLowerCase()}`,
+      "D2C electronics India",
+      "premium electronics",
+    ],
+    alternates: { canonical: `${siteConfig.url}/shop/${slug}` },
     openGraph: {
       title: `${product.name} — ${siteConfig.name}`,
-      description: product.blurb,
+      description,
       type: "website",
       url: `${siteConfig.url}/shop/${slug}`,
     },

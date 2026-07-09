@@ -3,7 +3,7 @@
  * These mirror the database schema (Nomad_* tables).
  */
 
-export type ProductCategory = "charger" | "cable" | "power-bank" | "kit";
+export type ProductCategory = string;
 
 export type Product = {
   id: number;

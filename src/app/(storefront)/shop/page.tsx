@@ -28,6 +28,13 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     return {
       title: `Shop ${catName}`,
       description: `Browse our collection of high-performance Nomad ${catName.toLowerCase()}. Premium D2C electronics with 1-year replacement warranty. Free shipping over ₹1,999.`,
+      keywords: [
+        catName,
+        `buy ${catName.toLowerCase()} online India`,
+        `${siteConfig.name} ${catName.toLowerCase()}`,
+        "D2C electronics",
+        "premium electronics India",
+      ],
       alternates: { canonical: `${siteConfig.url}/shop?category=${activeCategory}` },
       openGraph: {
         title: `Shop ${catName} — ${siteConfig.name}`,
@@ -42,6 +49,14 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     title: "Shop All Products",
     description:
       "Browse the complete Nomad collection — GaN chargers, braided USB-C cables, 10K power banks & travel kits. Premium D2C electronics with 1-year replacement warranty. Free shipping over ₹1,999.",
+    keywords: [
+      "GaN charger India",
+      "USB-C cable buy online",
+      "power bank India",
+      "travel charging kit",
+      "D2C electronics",
+      `${siteConfig.name} shop`,
+    ],
     alternates: { canonical: `${siteConfig.url}/shop` },
     openGraph: {
       title: `Shop — ${siteConfig.name}`,

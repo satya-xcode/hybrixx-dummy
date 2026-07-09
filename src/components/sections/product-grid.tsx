@@ -13,7 +13,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
       <Container size="lg">
         <Stack gap="xl">
           <ScrollReveal className="max-w-xl">
-            <Heading level="h1">Built for daily carry</Heading>
+            <Heading level="h2">Built for daily carry</Heading>
             <Text variant="lead" muted className="mt-3">
               Four essentials. No filler catalog, no decision fatigue.
             </Text>

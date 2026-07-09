@@ -10,7 +10,7 @@ export default function StorefrontLayout({
   return (
     <SmoothScrollProvider>
       <Navbar />
-      <div className="flex-1">{children}</div>
+      <main className="flex-1">{children}</main>
       <Footer />
     </SmoothScrollProvider>
   );
