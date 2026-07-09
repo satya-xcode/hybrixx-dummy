@@ -1,19 +1,20 @@
 import type { MetadataRoute } from "next";
-import { getProductSlugs } from "@/lib/data/products";
+import { getProducts } from "@/lib/data/products";
 import { getActiveCategories } from "@/lib/data/dashboard";
 import { siteConfig } from "@/config/site";
 
 /**
- * Dynamic sitemap — generates all static pages + dynamic product pages
- * + category filter pages for SEO discoverability.
+ * Dynamic sitemap — generates all static pages + category pages
+ * + product pages under their category path.
  *
- * Google uses the sitemap to discover pages faster and understand
- * crawl priority. Category filter URLs ensure Google indexes each
- * filtered view as a unique collection page.
+ * URL structure follows e-commerce industry standard:
+ *   /shop                         → All products
+ *   /shop/{category}              → Category listing
+ *   /shop/{category}/{product}    → Product detail
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [productSlugs, categories] = await Promise.all([
-    getProductSlugs(),
+  const [products, categories] = await Promise.all([
+    getProducts(),
     getActiveCategories(),
   ]);
 
@@ -50,17 +51,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Category filter pages — each is a unique collection page for Google
+  // Category pages — each is a unique collection page
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
-    url: `${siteConfig.url}/shop?category=${cat.slug}`,
+    url: `${siteConfig.url}/shop/${cat.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.85,
   }));
 
-  // Individual product pages
-  const productRoutes: MetadataRoute.Sitemap = productSlugs.map((p) => ({
-    url: `${siteConfig.url}/shop/${p.slug}`,
+  // Product pages — nested under their category
+  const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
+    url: `${siteConfig.url}/shop/${p.category}/${p.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.8,

@@ -15,17 +15,28 @@ import { getActiveCategories } from "@/lib/data/dashboard";
 import { siteConfig } from "@/config/site";
 import { getProductSchema, getBreadcrumbSchema } from "@/lib/seo/json-ld";
 
+type ProductPageProps = {
+  params: Promise<{ category: string; slug: string }>;
+};
+
 export async function generateStaticParams() {
-  const slugs = await getProductSlugs();
-  return slugs;
+  const [slugs, categories] = await Promise.all([
+    getProductSlugs(),
+    getActiveCategories(),
+  ]);
+
+  // Build a map of product slug → category slug for static param generation
+  const products = await getProducts();
+  return products.map((p) => ({
+    category: p.category,
+    slug: p.slug,
+  }));
 }
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
+}: ProductPageProps): Promise<Metadata> {
+  const { category: categorySlug, slug } = await params;
   const [product, categories] = await Promise.all([
     getProductBySlug(slug),
     getActiveCategories(),
@@ -50,12 +61,12 @@ export async function generateMetadata({
       "D2C electronics India",
       "premium electronics",
     ],
-    alternates: { canonical: `${siteConfig.url}/shop/${slug}` },
+    alternates: { canonical: `${siteConfig.url}/shop/${categorySlug}/${slug}` },
     openGraph: {
       title: `${product.name} — ${siteConfig.name}`,
       description,
       type: "website",
-      url: `${siteConfig.url}/shop/${slug}`,
+      url: `${siteConfig.url}/shop/${categorySlug}/${slug}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -65,14 +76,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { category: categorySlug, slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+
+  // If product's category doesn't match URL category, 404
+  if (product.category !== categorySlug) notFound();
 
   const [allProducts, categories] = await Promise.all([
     getProducts(),
@@ -89,12 +99,12 @@ export default async function ProductPage({
   // JSON-LD: Product schema (with shipping, returns, ratings)
   const productSchema = getProductSchema(product, catName);
 
-  // JSON-LD: BreadcrumbList — with category step (Google displays breadcrumbs in SERPs)
+  // JSON-LD: BreadcrumbList — clean path hierarchy (Google displays breadcrumbs in SERPs)
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "Home", url: siteConfig.url },
     { name: "Shop", url: `${siteConfig.url}/shop` },
-    { name: catName, url: `${siteConfig.url}/shop?category=${product.category}` },
-    { name: product.name, url: `${siteConfig.url}/shop/${product.slug}` },
+    { name: catName, url: `${siteConfig.url}/shop/${product.category}` },
+    { name: product.name, url: `${siteConfig.url}/shop/${product.category}/${product.slug}` },
   ]);
 
   return (
@@ -120,7 +130,7 @@ export default async function ProductPage({
                 Shop
               </Link>
               <ChevronRight className="size-3.5" />
-              <Link href={`/shop?category=${product.category}`} className="hover:text-foreground">
+              <Link href={`/shop/${product.category}`} className="hover:text-foreground">
                 {catName}
               </Link>
               <ChevronRight className="size-3.5" />
@@ -188,7 +198,7 @@ export default async function ProductPage({
                 <Flex gap="sm" wrap className="mt-2">
                   <AddToCartButton productId={product.id} size="lg" />
                   <Button size="lg" variant="outline" asChild>
-                    <Link href="/shop">Continue shopping</Link>
+                    <Link href={`/shop/${product.category}`}>Continue shopping</Link>
                   </Button>
                 </Flex>
                 <Text variant="xs" muted>

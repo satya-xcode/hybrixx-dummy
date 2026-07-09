@@ -63,7 +63,7 @@ export function getProductSchema(product: Product, categoryName?: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    "@id": `${siteConfig.url}/shop/${product.slug}#product`,
+    "@id": `${siteConfig.url}/shop/${product.category}/${product.slug}#product`,
     name: product.name,
     description: product.description,
     brand: {
@@ -78,7 +78,7 @@ export function getProductSchema(product: Product, categoryName?: string) {
       price: product.price.toString(),
       priceCurrency: "INR",
       availability: "https://schema.org/InStock",
-      url: `${siteConfig.url}/shop/${product.slug}`,
+      url: `${siteConfig.url}/shop/${product.category}/${product.slug}`,
       seller: { "@id": `${siteConfig.url}/#organization` },
       priceValidUntil: "2027-12-31",
       shippingDetails: {
@@ -155,7 +155,7 @@ export function getItemListSchema(products: Product[]) {
     itemListElement: products.map((product, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `${siteConfig.url}/shop/${product.slug}`,
+      url: `${siteConfig.url}/shop/${product.category}/${product.slug}`,
       name: product.name,
     })),
   };
@@ -219,10 +219,10 @@ export function getCollectionPageSchema(
     ? `Shop ${options.categoryName} — ${siteConfig.name}`
     : `Shop — ${siteConfig.name}`;
   const pageUrl = isFiltered
-    ? `${siteConfig.url}/shop?category=${options.categorySlug}`
+    ? `${siteConfig.url}/shop/${options.categorySlug}`
     : `${siteConfig.url}/shop`;
   const pageId = isFiltered
-    ? `${siteConfig.url}/shop?category=${options.categorySlug}#collection`
+    ? `${siteConfig.url}/shop/${options.categorySlug}#collection`
     : `${siteConfig.url}/shop#collection`;
   const pageDescription = isFiltered
     ? `Browse all ${options.categoryName?.toLowerCase()} from ${siteConfig.name}.`

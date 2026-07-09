@@ -27,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
     >
       {/* Image + title/blurb are one tap-target through to the detail page;
           the Add button stays outside the Link so it's its own control. */}
-      <Link href={`/shop/${product.slug}`} className="contents" itemProp="url">
+      <Link href={`/shop/${product.category}/${product.slug}`} className="contents" itemProp="url">
         <CardHeader className="relative p-6 pb-0">
           {product.badge && (
             <Badge className="absolute right-6 top-6">{product.badge}</Badge>
