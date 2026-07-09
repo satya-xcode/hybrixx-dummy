@@ -52,6 +52,20 @@ async function seed() {
   console.log("  ✓ Nomad_Products");
 
   await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Nomad_Categories')
+    CREATE TABLE dbo.Nomad_Categories (
+      Id             INT IDENTITY(1,1) PRIMARY KEY,
+      Slug           NVARCHAR(50) NOT NULL UNIQUE,
+      Name           NVARCHAR(100) NOT NULL,
+      Description    NVARCHAR(500) NULL,
+      SortOrder      INT NOT NULL DEFAULT 0,
+      IsActive       BIT NOT NULL DEFAULT 1,
+      CreatedAt      DATETIME2 NOT NULL DEFAULT GETDATE()
+    );
+  `);
+  console.log("  ✓ Nomad_Categories");
+
+  await pool.request().query(`
     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Nomad_ProductFeatures')
     CREATE TABLE dbo.Nomad_ProductFeatures (
       Id        INT IDENTITY(1,1) PRIMARY KEY,
@@ -166,6 +180,32 @@ async function seed() {
   // 2. Seed data (only if tables are empty)
   // ───────────────────────────────────────────────
   console.log("\n🌱 Seeding data...\n");
+
+  // Check if categories already seeded
+  const categoryCount = await pool.request().query(
+    "SELECT COUNT(*) AS cnt FROM dbo.Nomad_Categories"
+  );
+
+  if (categoryCount.recordset[0].cnt === 0) {
+    const categories = [
+      { slug: "charger", name: "Chargers", description: "GaN chargers and adapters" },
+      { slug: "cable", name: "Cables", description: "Braided and reinforced fast cables" },
+      { slug: "power-bank", name: "Power Banks", description: "Portable high capacity power banks" },
+      { slug: "kit", name: "Travel Kits", description: "Essential travel tech sets" }
+    ];
+
+    for (const c of categories) {
+      await pool.request()
+        .input("slug", c.slug)
+        .input("name", c.name)
+        .input("description", c.description)
+        .query(`
+          INSERT INTO dbo.Nomad_Categories (Slug, Name, Description)
+          VALUES (@slug, @name, @description)
+        `);
+      console.log(`  ✓ Category: ${c.name}`);
+    }
+  }
 
   // Check if products already seeded
   const productCount = await pool.request().query(

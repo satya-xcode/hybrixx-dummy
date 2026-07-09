@@ -7,7 +7,7 @@ import { NewsletterCTA } from "@/components/sections/footer";
 import { getProducts } from "@/lib/data/products";
 import { getTestimonials } from "@/lib/data/testimonials";
 import { siteConfig } from "@/config/site";
-import { getItemListSchema } from "@/lib/seo/json-ld";
+import { getItemListSchema, getWebPageSchema } from "@/lib/seo/json-ld";
 
 /**
  * Home page metadata — overrides the layout template for the root URL.
@@ -33,14 +33,17 @@ export default async function Home() {
     getTestimonials(),
   ]);
 
-  // Home page JSON-LD: ItemList (product carousel in SERPs)
+  // Home page JSON-LD: WebPage + ItemList (product carousel in SERPs)
+  const webPageSchema = getWebPageSchema();
   const itemListSchema = getItemListSchema(products);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([webPageSchema, itemListSchema]),
+        }}
       />
       <Hero />
       <ProductGrid products={products} />

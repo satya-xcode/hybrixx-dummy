@@ -139,6 +139,8 @@
   --dur-fast: 150ms;
   --dur-normal: 300ms;
   --dur-slow: 500ms;
+  --sidebar-width: 260px;
+  --surface-alt: #F5EFEB;
 }
 
 /* --------------------------------------------------------------------------
@@ -169,6 +171,7 @@
   --warning: #E0B33B;
   --destructive: #E5665A;
   --destructive-foreground: #100E0B;
+  --surface-alt: #14120E;
 }
 
 /* --------------------------------------------------------------------------

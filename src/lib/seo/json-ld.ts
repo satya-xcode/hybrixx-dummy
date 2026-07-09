@@ -59,7 +59,7 @@ export function getWebSiteSchema() {
 
 // ─── Product (individual product page) ───────────────────────────
 
-export function getProductSchema(product: Product) {
+export function getProductSchema(product: Product, categoryName?: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -70,7 +70,9 @@ export function getProductSchema(product: Product) {
       "@type": "Brand",
       name: siteConfig.name,
     },
-    category: getCategoryLabel(product.category),
+    category: categoryName
+      ? `Electronics > ${categoryName}`
+      : getCategoryLabel(product.category),
     offers: {
       "@type": "Offer",
       price: product.price.toString(),
@@ -206,17 +208,54 @@ export function getLocalBusinessSchema(contactInfo: {
   };
 }
 
-// ─── CollectionPage (shop page) ──────────────────────────────────
+// ─── CollectionPage (shop page — supports category filtering) ────
 
-export function getCollectionPageSchema(products: Product[]) {
+export function getCollectionPageSchema(
+  products: Product[],
+  options?: { categoryName?: string; categorySlug?: string }
+) {
+  const isFiltered = options?.categorySlug;
+  const pageName = isFiltered
+    ? `Shop ${options.categoryName} — ${siteConfig.name}`
+    : `Shop — ${siteConfig.name}`;
+  const pageUrl = isFiltered
+    ? `${siteConfig.url}/shop?category=${options.categorySlug}`
+    : `${siteConfig.url}/shop`;
+  const pageId = isFiltered
+    ? `${siteConfig.url}/shop?category=${options.categorySlug}#collection`
+    : `${siteConfig.url}/shop#collection`;
+  const pageDescription = isFiltered
+    ? `Browse all ${options.categoryName?.toLowerCase()} from ${siteConfig.name}.`
+    : `Every product ${siteConfig.name} makes, on one page.`;
+
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "@id": `${siteConfig.url}/shop#collection`,
-    name: `Shop — ${siteConfig.name}`,
-    description: "Every product Nomad makes, on one page.",
-    url: `${siteConfig.url}/shop`,
+    "@id": pageId,
+    name: pageName,
+    description: pageDescription,
+    url: pageUrl,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
     mainEntity: getItemListSchema(products),
+  };
+}
+
+// ─── WebPage (homepage structured data) ──────────────────────────
+
+export function getWebPageSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteConfig.url}/#webpage`,
+    name: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
+    about: { "@id": `${siteConfig.url}/#organization` },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/og-image.png`,
+    },
   };
 }
 

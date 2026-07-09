@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
-import { Navbar } from "@/components/sections/navbar";
-import { Footer } from "@/components/sections/footer";
 import { siteConfig } from "@/config/site";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
 import "./globals.css";
@@ -64,11 +61,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    // Add your real verification codes when deploying:
-    // google: "your-google-verification-code",
-    // yandex: "your-yandex-verification-code",
-  },
+  verification: {},
 };
 
 export const viewport: Viewport = {
@@ -107,11 +100,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <QueryProvider>
-            <SmoothScrollProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </SmoothScrollProvider>
+            {children}
           </QueryProvider>
         </ThemeProvider>
       </body>

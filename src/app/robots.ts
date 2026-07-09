@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
+import { siteConfig } from "@/config/site";
 
 /**
  * robots.txt — controls search engine crawling.
- * Critical for SEO: tells Google which pages to index.
+ * Critical for SEO: tells Google which pages to index and
+ * where to find the sitemap.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,9 +12,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/cart", "/api/"],
+        disallow: ["/cart", "/api/", "/dashboard"],
       },
     ],
-    sitemap: "https://nomad-gear.example/sitemap.xml",
+    sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }

@@ -11,6 +11,7 @@ import { ScrollReveal, ScrollRevealItem } from "@/components/motion/scroll-revea
 import { ProductCard, formatINR } from "@/components/sections/product-card";
 import { AddToCartButton } from "@/components/sections/add-to-cart-button";
 import { getProductBySlug, getProducts, getProductSlugs } from "@/lib/data/products";
+import { getActiveCategories } from "@/lib/data/dashboard";
 import { siteConfig } from "@/config/site";
 import { getProductSchema, getBreadcrumbSchema } from "@/lib/seo/json-ld";
 
@@ -58,16 +59,26 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const allProducts = await getProducts();
-  const related = allProducts.filter((p) => p.slug !== product.slug).slice(0, 3);
+  const [allProducts, categories] = await Promise.all([
+    getProducts(),
+    getActiveCategories(),
+  ]);
+  const related = allProducts
+    .filter((p) => p.category === product.category && p.slug !== product.slug)
+    .slice(0, 3);
+
+  // Resolve category display name from DB
+  const catObj = categories.find((c) => c.slug === product.category);
+  const catName = catObj?.name ?? product.category;
 
   // JSON-LD: Product schema (with shipping, returns, ratings)
-  const productSchema = getProductSchema(product);
+  const productSchema = getProductSchema(product, catName);
 
-  // JSON-LD: BreadcrumbList (Google displays breadcrumbs in SERPs)
+  // JSON-LD: BreadcrumbList — with category step (Google displays breadcrumbs in SERPs)
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "Home", url: siteConfig.url },
     { name: "Shop", url: `${siteConfig.url}/shop` },
+    { name: catName, url: `${siteConfig.url}/shop?category=${product.category}` },
     { name: product.name, url: `${siteConfig.url}/shop/${product.slug}` },
   ]);
 
@@ -92,6 +103,10 @@ export default async function ProductPage({
               <ChevronRight className="size-3.5" />
               <Link href="/shop" className="hover:text-foreground">
                 Shop
+              </Link>
+              <ChevronRight className="size-3.5" />
+              <Link href={`/shop?category=${product.category}`} className="hover:text-foreground">
+                {catName}
               </Link>
               <ChevronRight className="size-3.5" />
               <Text variant="small" className="text-foreground" aria-current="page">
