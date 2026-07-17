@@ -120,3 +120,34 @@ export async function clearCart() {
       WHERE cs.SessionId = @sessionId
     `);
 }
+
+export async function applyCouponAction(
+  _prevState: any,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const code = formData.get("couponCode")?.toString().trim().toUpperCase();
+  if (!code) {
+    return { success: false, error: "Please enter a coupon code." };
+  }
+
+  const sessionUuid = await getSessionId();
+
+  try {
+    const { applyCouponToSession } = await import("@/lib/data/cart");
+    const result = await applyCouponToSession(sessionUuid, code);
+    return result;
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to apply coupon." };
+  }
+}
+
+export async function removeCouponAction(): Promise<{ success: boolean; error?: string }> {
+  const sessionUuid = await getSessionId();
+  try {
+    const { removeCouponFromSession } = await import("@/lib/data/cart");
+    const result = await removeCouponFromSession(sessionUuid);
+    return result;
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to remove coupon." };
+  }
+}

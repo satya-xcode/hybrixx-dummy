@@ -18,7 +18,8 @@ import {
   Store,
   Menu,
   X,
-  Tags
+  Tags,
+  Ticket
 } from "lucide-react";
 
 type NavItem = {
@@ -44,6 +45,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Categories", href: "/dashboard/categories", icon: Tags },
+      { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
       { label: "FAQs", href: "/dashboard/faqs", icon: HelpCircle },
       { label: "Testimonials", href: "/dashboard/testimonials", icon: Star },
     ],

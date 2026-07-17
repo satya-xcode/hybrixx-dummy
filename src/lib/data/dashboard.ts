@@ -30,9 +30,8 @@ export type NewsletterSubscriber = {
  */
 export async function getDashboardStats(): Promise<DashboardStats> {
   "use cache";
-  cacheLife("minutes");
-  cacheTag("dashboard-stats");
-
+  cacheLife("seconds");
+  cacheTag("dashboard-stats")
   const pool = await getPool();
 
   const productsCount = await pool.request().query(
@@ -71,7 +70,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
  */
 export async function getRecentContacts(limit = 5): Promise<ContactSubmission[]> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("seconds");
   cacheTag("contacts");
 
   const pool = await getPool();
@@ -98,7 +97,7 @@ export async function getRecentContacts(limit = 5): Promise<ContactSubmission[]>
  */
 export async function getContactSubmissions(): Promise<ContactSubmission[]> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("seconds");
   cacheTag("contacts");
 
   const pool = await getPool();
@@ -123,7 +122,7 @@ export async function getContactSubmissions(): Promise<ContactSubmission[]> {
  */
 export async function getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("seconds");
   cacheTag("newsletter");
 
   const pool = await getPool();
@@ -306,6 +305,40 @@ export async function getActiveCategories(): Promise<Category[]> {
     description: row.Description,
     sortOrder: row.SortOrder,
     isActive: row.IsActive,
+  }));
+}
+
+export type CouponDetail = {
+  id: number;
+  code: string;
+  discountType: "PERCENT" | "FIXED";
+  discountValue: number;
+  isActive: boolean;
+  createdAt: Date;
+};
+
+/**
+ * Fetch all coupons for dashboard management.
+ */
+export async function getAllCoupons(): Promise<CouponDetail[]> {
+  "use cache";
+  cacheLife("seconds");
+  cacheTag("coupons");
+
+  const pool = await getPool();
+  const result = await pool.request().query(`
+    SELECT Id, Code, DiscountType, DiscountValue, IsActive, CreatedAt
+    FROM dbo.Nomad_Coupons
+    ORDER BY CreatedAt DESC
+  `);
+
+  return result.recordset.map((row: any) => ({
+    id: row.Id,
+    code: row.Code,
+    discountType: row.DiscountType as CouponDetail["discountType"],
+    discountValue: row.DiscountValue,
+    isActive: row.IsActive,
+    createdAt: row.CreatedAt,
   }));
 }
 

@@ -111,3 +111,112 @@ export async function getCartCount(sessionUuid: string): Promise<number> {
 
   return result.recordset[0].TotalCount;
 }
+
+export type Coupon = {
+  id: number;
+  code: string;
+  discountType: "PERCENT" | "FIXED";
+  discountValue: number;
+  isActive: boolean;
+  createdAt: Date;
+};
+
+/**
+ * Fetch a coupon by its code from the database.
+ */
+export async function getCouponByCode(code: string): Promise<Coupon | null> {
+  const pool = await getPool();
+  const result = await pool
+    .request()
+    .input("code", code)
+    .query(`
+      SELECT Id, Code, DiscountType, DiscountValue, IsActive, CreatedAt
+      FROM dbo.Nomad_Coupons
+      WHERE Code = @code
+    `);
+
+  if (result.recordset.length === 0) return null;
+  const row = result.recordset[0];
+  return {
+    id: row.Id,
+    code: row.Code,
+    discountType: row.DiscountType as Coupon["discountType"],
+    discountValue: row.DiscountValue,
+    isActive: row.IsActive,
+    createdAt: row.CreatedAt,
+  };
+}
+
+/**
+ * Fetch the currently applied coupon for a cart session.
+ */
+export async function getAppliedCouponForSession(
+  sessionUuid: string
+): Promise<Coupon | null> {
+  const pool = await getPool();
+  const sessionResult = await pool
+    .request()
+    .input("sessionId", sessionUuid)
+    .query(`
+      SELECT AppliedCouponCode
+      FROM dbo.Nomad_CartSessions
+      WHERE SessionId = @sessionId
+    `);
+
+  if (sessionResult.recordset.length === 0) return null;
+  const couponCode = sessionResult.recordset[0].AppliedCouponCode;
+  if (!couponCode) return null;
+
+  return getCouponByCode(couponCode);
+}
+
+/**
+ * Associate a coupon code with a cart session.
+ */
+export async function applyCouponToSession(
+  sessionUuid: string,
+  code: string
+): Promise<{ success: boolean; error?: string }> {
+  const coupon = await getCouponByCode(code);
+  if (!coupon) {
+    return { success: false, error: "Coupon does not exist." };
+  }
+  if (!coupon.isActive) {
+    return { success: false, error: "Coupon is inactive/expired." };
+  }
+
+  const pool = await getPool();
+  // Ensure session exists
+  await getOrCreateCartSession(sessionUuid);
+
+  await pool
+    .request()
+    .input("sessionId", sessionUuid)
+    .input("code", code)
+    .query(`
+      UPDATE dbo.Nomad_CartSessions
+      SET AppliedCouponCode = @code, UpdatedAt = GETDATE()
+      WHERE SessionId = @sessionId
+    `);
+
+  return { success: true };
+}
+
+/**
+ * Remove any coupon associated with a cart session.
+ */
+export async function removeCouponFromSession(
+  sessionUuid: string
+): Promise<{ success: boolean }> {
+  const pool = await getPool();
+  await pool
+    .request()
+    .input("sessionId", sessionUuid)
+    .query(`
+      UPDATE dbo.Nomad_CartSessions
+      SET AppliedCouponCode = NULL, UpdatedAt = GETDATE()
+      WHERE SessionId = @sessionId
+    `);
+
+  return { success: true };
+}

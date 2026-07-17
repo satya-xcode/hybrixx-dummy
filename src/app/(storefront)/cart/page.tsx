@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { PageHeader } from "@/components/sections/page-header";
-import { getCartItems } from "@/lib/data/cart";
+import { getCartItems, getAppliedCouponForSession } from "@/lib/data/cart";
+import { CouponForm } from "@/components/sections/coupon-form";
 import { formatINR } from "@/components/sections/product-card";
 import { CartItemActions } from "@/components/sections/cart-item-actions";
 import { siteConfig } from "@/config/site";
@@ -27,7 +28,10 @@ async function CartContent() {
     return <EmptyCart />;
   }
 
-  const items = await getCartItems(sessionId);
+  const [items, appliedCoupon] = await Promise.all([
+    getCartItems(sessionId),
+    getAppliedCouponForSession(sessionId),
+  ]);
 
   if (items.length === 0) {
     return <EmptyCart />;
@@ -37,6 +41,24 @@ async function CartContent() {
     (sum, item) => sum + (item.productPrice ?? 0) * item.quantity,
     0
   );
+
+  let discount = 0;
+  if (appliedCoupon && appliedCoupon.isActive) {
+    if (appliedCoupon.discountType === "PERCENT") {
+      discount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
+    } else {
+      discount = appliedCoupon.discountValue;
+    }
+  }
+
+  const discountText = appliedCoupon
+    ? appliedCoupon.discountType === "PERCENT"
+      ? `${appliedCoupon.discountValue}%`
+      : formatINR(appliedCoupon.discountValue)
+    : "";
+
+  const shipping = subtotal >= 1999 ? 0 : 99;
+  const total = Math.max(0, subtotal - discount + shipping);
 
   return (
     <Section>
@@ -84,25 +106,38 @@ async function CartContent() {
                       {formatINR(subtotal)}
                     </Text>
                   </Flex>
+                  {discount > 0 && (
+                    <Flex justify="between" className="text-primary font-medium">
+                      <Text variant="small">
+                        Discount ({appliedCoupon?.code})
+                      </Text>
+                      <Text variant="small">
+                        -{formatINR(discount)}
+                      </Text>
+                    </Flex>
+                  )}
                   <Flex justify="between">
                     <Text variant="small" muted>
                       Shipping
                     </Text>
                     <Text variant="small" className="font-medium">
-                      {subtotal >= 1999 ? "Free" : formatINR(99)}
+                      {shipping === 0 ? "Free" : formatINR(shipping)}
                     </Text>
                   </Flex>
                   <div className="border-t border-border pt-2">
                     <Flex justify="between">
                       <Text className="font-semibold">Total</Text>
                       <Text className="font-semibold">
-                        {formatINR(
-                          subtotal + (subtotal >= 1999 ? 0 : 99)
-                        )}
+                        {formatINR(total)}
                       </Text>
                     </Flex>
                   </div>
                 </Stack>
+
+                <CouponForm
+                  appliedCouponCode={appliedCoupon?.code}
+                  appliedDiscountText={discountText}
+                />
 
                 <Button size="lg" className="w-full">
                   Proceed to Checkout

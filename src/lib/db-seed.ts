@@ -176,6 +176,25 @@ async function seed() {
   `);
   console.log("  ✓ Nomad_SiteSettings");
 
+  await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Nomad_Coupons')
+    CREATE TABLE dbo.Nomad_Coupons (
+      Id             INT IDENTITY(1,1) PRIMARY KEY,
+      Code           NVARCHAR(50) NOT NULL UNIQUE,
+      DiscountType   NVARCHAR(20) NOT NULL, -- 'PERCENT' or 'FIXED'
+      DiscountValue  INT NOT NULL,
+      IsActive       BIT NOT NULL DEFAULT 1,
+      CreatedAt      DATETIME2 NOT NULL DEFAULT GETDATE()
+    );
+  `);
+  console.log("  ✓ Nomad_Coupons");
+
+  await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Nomad_CartSessions') AND name = 'AppliedCouponCode')
+    ALTER TABLE dbo.Nomad_CartSessions ADD AppliedCouponCode NVARCHAR(50) NULL;
+  `);
+  console.log("  ✓ Nomad_CartSessions Alter (AppliedCouponCode)");
+
   // ───────────────────────────────────────────────
   // 2. Seed data (only if tables are empty)
   // ───────────────────────────────────────────────
@@ -485,8 +504,57 @@ async function seed() {
     }
     console.log(`  ✓ Site Settings: ${settings.length} items`);
 
+    // --- Coupons ---
+    const couponCount = await pool.request().query(
+      "SELECT COUNT(*) AS cnt FROM dbo.Nomad_Coupons"
+    );
+
+    if (couponCount.recordset[0].cnt === 0) {
+      const coupons = [
+        { code: "OFF30", discountType: "PERCENT", discountValue: 30 },
+        { code: "WELCOME10", discountType: "PERCENT", discountValue: 10 },
+        { code: "FLAT150", discountType: "FIXED", discountValue: 150 },
+      ];
+
+      for (const c of coupons) {
+        await pool.request()
+          .input("code", sql.NVarChar, c.code)
+          .input("discountType", sql.NVarChar, c.discountType)
+          .input("discountValue", sql.Int, c.discountValue)
+          .query(`
+            INSERT INTO dbo.Nomad_Coupons (Code, DiscountType, DiscountValue)
+            VALUES (@code, @discountType, @discountValue)
+          `);
+        console.log(`  ✓ Coupon: ${c.code}`);
+      }
+    }
+
     console.log("\n🎉 Seed complete!");
   } else {
+    // Even if other tables are not empty, ensure Nomad_Coupons is seeded if empty
+    const couponCount = await pool.request().query(
+      "SELECT COUNT(*) AS cnt FROM dbo.Nomad_Coupons"
+    );
+
+    if (couponCount.recordset[0].cnt === 0) {
+      const coupons = [
+        { code: "OFF30", discountType: "PERCENT", discountValue: 30 },
+        { code: "WELCOME10", discountType: "PERCENT", discountValue: 10 },
+        { code: "FLAT150", discountType: "FIXED", discountValue: 150 },
+      ];
+
+      for (const c of coupons) {
+        await pool.request()
+          .input("code", sql.NVarChar, c.code)
+          .input("discountType", sql.NVarChar, c.discountType)
+          .input("discountValue", sql.Int, c.discountValue)
+          .query(`
+            INSERT INTO dbo.Nomad_Coupons (Code, DiscountType, DiscountValue)
+            VALUES (@code, @discountType, @discountValue)
+          `);
+        console.log(`  ✓ Coupon: ${c.code}`);
+      }
+    }
     console.log("  ⏭  Data already exists — skipping seed.");
   }
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getPool, sql } from "@/lib/db";
 
 export type NewsletterState = {
@@ -47,6 +48,10 @@ export async function subscribe(
         INSERT INTO dbo.Nomad_NewsletterSubscribers (Email)
         VALUES (@email)
       `);
+
+    // Invalidate newsletter & dashboard stats cache
+    updateTag("newsletter");
+    updateTag("dashboard-stats");
 
     return {
       success: true,

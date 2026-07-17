@@ -1,22 +1,22 @@
 import { Suspense } from "react";
-import { getAllCategories } from "@/lib/data/dashboard";
-import { CategoriesManager } from "@/components/sections/categories-manager";
+import { getAllCoupons } from "@/lib/data/dashboard";
+import { CouponsManager } from "@/components/sections/coupons-manager";
 import { Card } from "@/components/ui/card";
 
-export default function CategoriesPage() {
+export default function CouponsPage() {
   return (
-    <Suspense fallback={<CategoriesFallback />}>
-      <CategoriesContent />
+    <Suspense fallback={<CouponsFallback />}>
+      <CouponsContent />
     </Suspense>
   );
 }
 
-async function CategoriesContent() {
-  const categories = await getAllCategories();
-  return <CategoriesManager categories={categories} />;
+async function CouponsContent() {
+  const coupons = await getAllCoupons();
+  return <CouponsManager coupons={coupons} />;
 }
 
-function CategoriesFallback() {
+function CouponsFallback() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       {/* Header Skeleton */}

@@ -790,3 +790,87 @@ export async function deleteCategory(id: number): Promise<ActionState> {
     return { success: false, error: err.message || "Failed to delete category." };
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   COUPON CRUD ACTIONS
+   ────────────────────────────────────────────────────────────────────────── */
+
+export async function createCoupon(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const code = formData.get("code")?.toString().trim().toUpperCase();
+  const discountType = formData.get("discountType")?.toString().trim();
+  const discountValueStr = formData.get("discountValue")?.toString().trim();
+  const isActive = formData.get("isActive") === "true";
+
+  if (!code || !discountType || !discountValueStr) {
+    return { success: false, error: "Please fill in all required fields." };
+  }
+
+  const discountValue = parseInt(discountValueStr, 10);
+  if (isNaN(discountValue) || discountValue <= 0) {
+    return { success: false, error: "Discount value must be a positive integer." };
+  }
+
+  try {
+    const pool = await getPool();
+
+    // Check duplicate code
+    const dupCheck = await pool
+      .request()
+      .input("code", code)
+      .query("SELECT Id FROM dbo.Nomad_Coupons WHERE Code = @code");
+
+    if (dupCheck.recordset.length > 0) {
+      return { success: false, error: "A coupon with this code already exists." };
+    }
+
+    await pool
+      .request()
+      .input("code", code)
+      .input("discountType", discountType)
+      .input("discountValue", discountValue)
+      .input("isActive", isActive ? 1 : 0)
+      .query(`
+        INSERT INTO dbo.Nomad_Coupons (Code, DiscountType, DiscountValue, IsActive)
+        VALUES (@code, @discountType, @discountValue, @isActive)
+      `);
+
+    updateTag("coupons");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to create coupon." };
+  }
+}
+
+export async function toggleCouponStatus(id: number, isActive: boolean): Promise<ActionState> {
+  try {
+    const pool = await getPool();
+    await pool
+      .request()
+      .input("id", id)
+      .input("isActive", isActive ? 1 : 0)
+      .query("UPDATE dbo.Nomad_Coupons SET IsActive = @isActive WHERE Id = @id");
+
+    updateTag("coupons");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to toggle coupon status." };
+  }
+}
+
+export async function deleteCoupon(id: number): Promise<ActionState> {
+  try {
+    const pool = await getPool();
+    await pool
+      .request()
+      .input("id", id)
+      .query("DELETE FROM dbo.Nomad_Coupons WHERE Id = @id");
+
+    updateTag("coupons");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to delete coupon." };
+  }
+}

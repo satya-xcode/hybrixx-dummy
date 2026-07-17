@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getPool, sql } from "@/lib/db";
 
 export type ContactFormState = {
@@ -38,6 +39,10 @@ export async function submitContact(
         INSERT INTO dbo.Nomad_ContactSubmissions (Name, Email, Message)
         VALUES (@name, @email, @message)
       `);
+
+    // Invalidate dashboard cache immediately
+    updateTag("contacts");
+    updateTag("dashboard-stats");
 
     return { success: true };
   } catch {
